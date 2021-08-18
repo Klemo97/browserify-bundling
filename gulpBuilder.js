@@ -4,12 +4,8 @@
  * Wrappery pre nastavitelne bundlovanie
  */
 
-const gulp = require('gulp');
-const sourcemaps = require('gulp-sourcemaps');
-const source = require('vinyl-source-stream');
-const buffer = require('vinyl-buffer');
+const fs = require('fs');
 const browserify = require('browserify');
-const watchify = require('watchify');
 const babel = require('babelify');
 const glob = require('glob')
 const path = require('path')
@@ -24,8 +20,6 @@ module.exports.GlobalDependencyBundler = function () {
     let destFileName
     // Glob cesta ku global dependency modulom
     let srcFolder
-    // Watch mod
-    let watch = false
     // Prostredie
     let env = ENVIRONMENT.DEV
 
@@ -53,17 +47,6 @@ module.exports.GlobalDependencyBundler = function () {
          */
         withOutput: function(output) {
             ({destFolder, destFileName} = output)
-            return this
-        },
-
-        /**
-         * Nasetuj watch mode
-         *
-         * @param {boolean} watchMode
-         * @return {self}
-         */
-        withWatchMode: function(watchMode) {
-            watch = watchMode
             return this
         },
 
@@ -96,35 +79,18 @@ module.exports.GlobalDependencyBundler = function () {
             const files = getEntryFiles()
             const requireEntries = getRequireObject(files)
 
-            const bundler = watchify(
-                browserify({entries: files}, {debug: isDev()})
-                    .transform(
-                        babel.configure({
-                            presets: ['@babel/preset-env']
-                        })
-                    )
-                    .require([...requireEntries, ...depPackages])
-            );
+            const bundler = browserify({entries: files}, {debug: isDev()})
+                .transform(
+                    babel.configure({
+                        presets: ['@babel/preset-env']
+                    })
+                )
+                .require([...requireEntries, ...depPackages]);
 
             const bundle = () => bundler.bundle()
-                .on('error', function (err) {
-                    console.error(err);
-                    this.emit('end');
-                })
-                .pipe(source(destFileName))
-                .pipe(buffer())
-                .pipe(sourcemaps.init({loadMaps: isDev()}))
-                .pipe(sourcemaps.write('./'))
-                .pipe(gulp.dest(destFolder));
+                .pipe(fs.createWriteStream(path.join(destFolder, destFileName)));
 
-            if (watch) {
-                bundler.on('update', function () {
-                    console.log('-> bundling...');
-                    bundle();
-                });
-            }
-
-            bundle();
+            return bundle();
         }
     }
 }
@@ -196,11 +162,7 @@ module.exports.ModuleDependencyBundler = function () {
                         presets: ['@babel/preset-env']
                     }))
                         .bundle()
-                        .pipe(source(path.basename(file, '.js') + suffix))
-                        .pipe(buffer())
-                        .pipe(sourcemaps.init({loadMaps: isDev()}))
-                        .pipe(sourcemaps.write('./'))
-                        .pipe(gulp.dest(destFolder))
+                        .pipe(fs.createWriteStream(path.join(destFolder, path.basename(file, '.js') + suffix)))
                 ))
         }
     }
