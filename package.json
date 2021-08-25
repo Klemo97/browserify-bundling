@@ -4,8 +4,7 @@
   "description": "Bundling for easier migration of legacy js code",
   "main": "index.js",
   "scripts": {
-    "build": "gulp",
-    "build-watch": "gulp",
+    "build": "node build.js > webroot/js/dist/build.js",
     "test": "jest"
   },
   "author": "",
@@ -18,13 +17,7 @@
     "babelify": "^10.0.0",
     "browserify": "^17.0.0",
     "glob": "^7.1.7",
-    "gulp": "^4.0.2",
-    "gulp-sourcemaps": "^3.0.0",
-    "jest": "^27.0.6",
-    "merge-stream": "^2.0.0",
-    "vinyl-buffer": "^1.0.1",
-    "vinyl-source-stream": "^2.0.0",
-    "watchify": "^4.0.0"
+    "jest": "^27.0.6"
   },
   "dependencies": {
     "lodash": "^4.17.21"
