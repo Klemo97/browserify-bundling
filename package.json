@@ -17,7 +17,8 @@
     "babelify": "^10.0.0",
     "browserify": "^17.0.0",
     "glob": "^7.1.7",
-    "jest": "^27.0.6"
+    "jest": "^27.0.6",
+    "uglifyify": "^5.0.2"
   },
   "dependencies": {
     "lodash": "^4.17.21"

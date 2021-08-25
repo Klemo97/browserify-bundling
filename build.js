@@ -44,6 +44,7 @@ glob('./webroot/js/global_modules/*.js', (err, files) => {
 
     const browserifyInstance = browserify({entries: files}, {debug: true})
         .transform('babelify')
+        .transform('uglifyify', { global: true  })
         .require([...requireEntries, ...depPackages])
 
     browserifyInstance
